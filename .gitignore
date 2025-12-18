@@ -1,12 +1,6 @@
-.coverage
-*.db
-env/
-__pycache__/
-.pytest_cache/
-.ruff_cache/
-profile.svg
-nul
-envs/.env
-.env
 node_modules/
+.env
 bun.lockb
+*.log
+dist/
+.DS_Store
