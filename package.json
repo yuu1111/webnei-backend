@@ -2,8 +2,8 @@
   "name": "webnei-backend",
   "version": "2.0.0",
   "scripts": {
-    "dev": "bun run --watch ts/index.ts",
-    "start": "bun run ts/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts"
   },
   "dependencies": {
     "elysia": "^1.2.25",
