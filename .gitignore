@@ -5,3 +5,8 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 profile.svg
+nul
+envs/.env
+.env
+node_modules/
+bun.lockb
