@@ -237,6 +237,8 @@ def preProcessSearch(search: str) -> str:
     # Avoids SQL injection and/or unintended consequences
     # For "contains" searches I'm doing LIKE, so _, \, % are reserved characters
     # (Need to insert escapes for them)
+    # Convert to lowercase to match LOWER() in SQL query
+    search = search.lower()
     reserved = ['_', '\\', '%']
     buf = ['%']
     for char in search:
