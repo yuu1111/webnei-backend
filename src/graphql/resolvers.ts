@@ -1,12 +1,12 @@
 import { sql } from "../db";
 import type {
-  NEI_Item,
-  NEI_Fluid,
-  NEI_Base_Recipe,
-  NEI_GT_Recipe,
-  NEI_All_Dimensions,
-  SidebarItem,
   AssociatedRecipes,
+  NEI_All_Dimensions,
+  NEI_Base_Recipe,
+  NEI_Fluid,
+  NEI_GT_Recipe,
+  NEI_Item,
+  SidebarItem,
 } from "./types";
 
 async function getItemInputs(recipeId: string): Promise<NEI_Item[]> {
@@ -185,9 +185,11 @@ async function getFluidOutputs(recipeId: string): Promise<NEI_Fluid[]> {
   }));
 }
 
-async function getRecipeTypeInfo(
-  recipeId: string
-): Promise<{ recipeType: string; iconId: string; dimensions: NEI_All_Dimensions }> {
+async function getRecipeTypeInfo(recipeId: string): Promise<{
+  recipeType: string;
+  iconId: string;
+  dimensions: NEI_All_Dimensions;
+}> {
   const rows = await sql`
     SELECT
       recipe_type.type,
@@ -253,7 +255,7 @@ async function getBaseRecipe(recipeId: string): Promise<NEI_Base_Recipe> {
 }
 
 export async function getGTRecipeByRecipeId(
-  recipeId: string
+  recipeId: string,
 ): Promise<NEI_GT_Recipe> {
   const [baseRecipe, gtInfo] = await Promise.all([
     getBaseRecipe(recipeId),
@@ -302,20 +304,20 @@ function preprocessSearch(search: string): string {
   let result = "%";
   for (const char of search.toLowerCase()) {
     if (reserved.includes(char)) {
-      result += "\\" + char;
+      result += `\\${char}`;
     } else {
       result += char;
     }
   }
-  return result + "%";
+  return `${result}%`;
 }
 
 export async function getSidebarItems(
   limit: number,
   search: string,
-  mode: string
+  mode: string,
 ): Promise<SidebarItem[]> {
-  let rows;
+  let rows: Record<string, unknown>[];
 
   if (mode === "contains") {
     if (search === "") {
@@ -346,15 +348,15 @@ export async function getSidebarItems(
   }
 
   return rows.map((r) => ({
-    itemId: r.id,
-    imageFilePath: r.image_file_path,
-    localizedName: r.localized_name,
-    tooltip: r.tooltip,
+    itemId: r.id as string,
+    imageFilePath: r.image_file_path as string,
+    localizedName: r.localized_name as string,
+    tooltip: r.tooltip as string,
   }));
 }
 
 async function splitRecipesByType(
-  recipeIds: string[]
+  recipeIds: string[],
 ): Promise<{ gt: NEI_GT_Recipe[]; other: NEI_Base_Recipe[] }> {
   if (recipeIds.length === 0) {
     return { gt: [], other: [] };
@@ -389,7 +391,7 @@ async function splitRecipesByType(
 }
 
 export async function getRecipesThatMakeSingleId(
-  singleId: string
+  singleId: string,
 ): Promise<AssociatedRecipes> {
   let rows = await sql`
     SELECT recipe_id FROM recipe_item_outputs
@@ -414,7 +416,7 @@ export async function getRecipesThatMakeSingleId(
 }
 
 export async function getRecipesThatUseSingleId(
-  singleId: string
+  singleId: string,
 ): Promise<AssociatedRecipes> {
   let rows = await sql`
     SELECT recipe_id FROM recipe_item_inputs_items
