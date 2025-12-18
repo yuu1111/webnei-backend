@@ -1,5 +1,7 @@
+import { cors } from "@elysiajs/cors";
 import { yoga } from "@elysiajs/graphql-yoga";
 import { Elysia } from "elysia";
+import { ENV_CONFIG } from "./config/env.config";
 import {
   getGTRecipeByRecipeId,
   getRecipesThatMakeSingleId,
@@ -7,8 +9,21 @@ import {
   getSidebarItems,
 } from "./graphql/resolvers";
 import { typeDefs } from "./graphql/schema";
+import { createLogger } from "./utils/logger";
+
+const logger = createLogger("HTTP");
 
 const app = new Elysia()
+  .use(cors({ origin: ENV_CONFIG.cors.origin }))
+  .onRequest(({ request }) => {
+    const url = new URL(request.url);
+    logger.info(`→ ${request.method} ${url.pathname}`);
+  })
+  .onAfterResponse(({ request, set }) => {
+    const url = new URL(request.url);
+    const status = typeof set.status === "number" ? set.status : 200;
+    logger.info(`← ${request.method} ${url.pathname} ${status}`);
+  })
   .use(
     yoga({
       typeDefs,
@@ -46,7 +61,7 @@ const app = new Elysia()
       },
     }),
   )
-  .listen(process.env.PORT || 5000);
+  .listen(ENV_CONFIG.server.port);
 
 console.log(
   `🦊 Elysia + GraphQL Yoga running at http://${app.server?.hostname}:${app.server?.port}/graphql`,
